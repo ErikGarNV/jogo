@@ -1,0 +1,387 @@
+/* ═══════════════════════════════════════════════
+   style.css — Bio-Defense: Protocolo 01
+   viral_invaders.png : 1584 × 672 px
+     cells : 226 px wide × row-height  
+     rows  : peon=y144 | tank=y296 | zigzag=y440
+   battle_medic_sprites.png : 768 × 1377 px
+     cols  : 192 px each  
+     rows  : y37 | y401 | y731 | y1042
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ── 1. BASE ── */
+html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Press Start 2P', cursive;
+    touch-action: none; /* evita scroll en móvil */
+}
+
+/* ── 2. GAME CONTAINER ── */
+#game-container {
+    position: absolute;
+    width: 1280px;
+    height: 720px;
+    transform-origin: top left;
+    overflow: hidden;
+}
+
+/* ── 3. ESCENARIO ── */
+#scenario-layer {
+    position: absolute;
+    inset: 0;
+    background-image: url('biotech_complex_level_1.png');
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: cover;
+    image-rendering: pixelated;
+    z-index: 1;
+}
+
+/* ── 4. CAPAS DE ENTIDADES ── */
+#entities-layer,
+#bullet-container,
+#enemy-container,
+#item-container,
+#particle-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+#entities-layer { z-index: 5; }
+
+.entity {
+    position: absolute;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* ══════════════════════════════════════════
+   5. PERSONAJE — battle_medic_sprites.png
+      sheet   : 768 × 1377 px
+      display : 96 × 172 px  (escala ÷2)
+      bkg-size: 384 × 689 px (sheet ÷2)
+      
+      Filas (al ÷2):
+        row0 idle  → y ≈ -19px   (37/2)
+        row1 walk  → y ≈ -200px  (401/2)
+        row2 run   → y ≈ -366px  (731/2)
+        row3 shoot → y ≈ -521px  (1042/2)
+      
+      Cols (al ÷2, 96px cada una):
+        col0 front  → x = 0px
+        col1 back   → x = -96px
+        col2 right  → x = -192px
+        col3 left   → x = -288px
+   ══════════════════════════════════════════ */
+#player {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    width: 96px;
+    height: 172px;
+    margin-left: -48px;       /* centrar: -width/2 */
+    background-image: url('battle_medic_sprites.png');
+    background-size: 384px 689px;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    z-index: 6;
+    /* Estado inicial: idle-front */
+    background-position: 0px -19px;
+}
+
+/* Estados de animación del personaje */
+#player.idle-front  { background-position:    0px -19px;  }
+#player.idle-back   { background-position:  -96px -19px;  }
+#player.idle-right  { background-position: -192px -19px;  }
+#player.idle-left   { background-position: -288px -19px;  }
+
+#player.walk-right-a { background-position: -192px -200px; }
+#player.walk-right-b { background-position: -192px -366px; }
+#player.walk-left-a  { background-position: -288px -200px; }
+#player.walk-left-b  { background-position: -288px -366px; }
+
+#player.aim-up      { background-position:    0px -366px; }
+#player.shoot-front { background-position:    0px -521px; }
+#player.shoot-right { background-position: -192px -521px; }
+#player.shoot-left  { background-position: -288px -521px; }
+
+/* ══════════════════════════════════════════
+   6. BALAS
+   ══════════════════════════════════════════ */
+.bullet {
+    position: absolute;
+    width: 15px;
+    height: 30px;
+    background: #00ffcc;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #00ffcc;
+    z-index: 4;
+    transform-origin: center center;
+}
+/* Rotaciones según dirección */
+.bullet.dir-up    { transform: rotate(0deg);    }
+.bullet.dir-down  { transform: rotate(180deg);  }
+.bullet.dir-left  { transform: rotate(-90deg);  }
+.bullet.dir-right { transform: rotate(90deg);   }
+
+/* ══════════════════════════════════════════
+   7. ENEMIGOS — viral_invaders.png
+      sheet   : 1584 × 672 px
+      display : 128 × 128 px
+      bkg-size: 1584px 672px (original)
+      
+      Col1 center X = 339 → bgX = -(339-64) = -275px
+      
+      Filas (sprite center Y):
+        peon   y=144  → bgY = -(144-64) = -80px
+        tank   y=296  → bgY = -(296-64) = -232px
+        zigzag y=440  → bgY = -(440-64) = -376px
+   ══════════════════════════════════════════ */
+.enemy {
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    background-image: url('viral_invaders.png');
+    background-size: 1584px 672px;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    z-index: 4;
+}
+
+.enemy-peon-1   { background-position: -275px  -80px; }
+.enemy-tank-1   { background-position: -275px -232px; }
+.enemy-zigzag-1 { background-position: -275px -376px; }
+
+/* Frames adicionales para animación (col siguiente = +226px) */
+.enemy-peon-f2   { background-position: -501px  -80px; } /* col2 center x=565, 565-64=501 */
+.enemy-tank-f2   { background-position: -501px -232px; }
+.enemy-zigzag-f2 { background-position: -501px -376px; }
+
+/* ══════════════════════════════════════════
+   8. POWER-UPS — medical_assets.png
+      sheet : 1584 × 672 px
+      cell  : 226 × 168 px aprox
+      display: 48×48px para mejor escala
+   ══════════════════════════════════════════ */
+.item {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background-image: url('medical_assets.png');
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    z-index: 6;
+    animation: itemFloat 0.8s ease-in-out infinite alternate;
+}
+@keyframes itemFloat {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-6px); }
+}
+
+/* Adrenaline capsule: col0-1 fila0 — centro ~170x84 */
+/* Los offsets para 48×48: bgX=-(cx-24), bgY=-(cy-24)  */
+.item-adrenaline { background-position:  -89px  -60px; } /* cx≈113, cy≈84 */
+.item-medkit     { background-position: -315px  -60px; } /* col1 cx=339 */
+.item-serum      { background-position: -541px  -60px; } /* col2 cx=565 */
+
+/* ── 9. PARTÍCULAS ── */
+.particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #00ffcc;
+    pointer-events: none;
+    z-index: 7;
+    border-radius: 1px;
+}
+
+/* ── 10. HUD ── */
+#ui-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+#hud {
+    display: flex;
+    justify-content: space-between;
+    padding: 30px;
+    color: #00ffcc;
+    text-shadow: 2px 2px #000;
+    font-size: 12px;
+}
+#health-bar-bg {
+    width: 250px; height: 20px;
+    background: #1a1a1a;
+    border: 3px solid #00ffcc;
+    margin-top: 10px;
+    box-shadow: 0 0 10px rgba(0,255,204,0.3);
+}
+#health-bar {
+    width: 100%; height: 100%;
+    background: #00ffcc;
+    box-shadow: inset 0 0 10px #fff;
+    transition: width 0.3s ease;
+}
+#health-bar.critical {
+    background: #ff3366;
+    box-shadow: inset 0 0 10px #fff, 0 0 10px #ff3366;
+}
+#hud.adrenaline-active #score-container {
+    color: #ff3366;
+    animation: adrenalinePulse 0.3s infinite alternate;
+}
+@keyframes adrenalinePulse {
+    from { text-shadow: 0 0 8px #ff3366; }
+    to   { text-shadow: 0 0 20px #ff3366; }
+}
+
+/* ── 11. INTRO NIVEL ── */
+@keyframes introFade {
+    0%   { opacity:0; transform:translate(-50%,-40%); }
+    20%  { opacity:1; transform:translate(-50%,-50%); }
+    80%  { opacity:1; transform:translate(-50%,-50%); }
+    100% { opacity:0; transform:translate(-50%,-60%); }
+}
+#level-intro {
+    position: absolute;
+    top: 65%; left: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+}
+#level-intro.running { animation: introFade 4s forwards; }
+
+.pixel-text     { color:#fff;     font-size:24px; margin-bottom:10px; text-shadow:4px 4px #000; }
+.pixel-text-sub { color:#ff3366; font-size:14px;  text-shadow:2px 2px #000; }
+
+/* ── 12. PANTALLAS MENÚ / GAMEOVER ── */
+.game-screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 20px;
+    background: rgba(0,0,0,0.82);
+    z-index: 30;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+.game-screen.active { opacity:1; pointer-events:all; }
+
+.pixel-btn {
+    margin-top: 20px;
+    padding: 16px 32px;
+    background: transparent;
+    color: #00ffcc;
+    border: 3px solid #00ffcc;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 0 12px #00ffcc44;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.pixel-btn:hover,
+.pixel-btn:active { background:#00ffcc; color:#000; box-shadow:0 0 24px #00ffcc; }
+
+.hint-text {
+    color: #ffffff55;
+    font-size: 9px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* ── 13. SCREEN SHAKE ── */
+@keyframes screenShake {
+    0%   { translate: 0px 0px; }
+    20%  { translate: -6px 3px; }
+    40%  { translate: 6px -3px; }
+    60%  { translate: -4px 5px; }
+    80%  { translate: 4px -2px; }
+    100% { translate: 0px 0px; }
+}
+#game-container.shaking { animation: screenShake 0.35s ease; }
+
+/* ══════════════════════════════════════════
+   14. CONTROLES MÓVIL
+       posición fija, fuera del game-container
+   ══════════════════════════════════════════ */
+#mobile-controls {
+    position: fixed;
+    inset: 0;
+    pointer-events: none; /* solo los botones capturan eventos */
+    z-index: 100;
+    /* Ocultar en desktop si no hay touch */
+    display: none;
+}
+/* Mostrar solo si el dispositivo tiene touch */
+@media (hover: none) and (pointer: coarse) {
+    #mobile-controls { display: block; }
+}
+
+/* D-pad — esquina inferior izquierda */
+#dpad {
+    position: absolute;
+    bottom: 32px;
+    left: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: all;
+}
+.dpad-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.dpad-center {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+}
+.dpad-btn {
+    width: 64px; height: 64px;
+    background: rgba(0,255,204,0.15);
+    border: 2px solid rgba(0,255,204,0.4);
+    color: #00ffcc;
+    font-size: 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    pointer-events: all;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s;
+}
+.dpad-btn:active,
+.dpad-btn.pressed {
+    background: rgba(0,255,204,0.4);
+}
+
+/* Botón FIRE — esquina inferior derecha */
+#btn-fire {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    width: 110px; height: 110px;
+    background: rgba(255,51,102,0.2);
+    border: 3px solid rgba(255,51,102,0.7);
+    color: #ff3366;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: all;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition: background 0.1s;
+}
+#btn-fire:active,
+#btn-fire.pressed {
+    background: rgba(255,51,102,0.5);
+}

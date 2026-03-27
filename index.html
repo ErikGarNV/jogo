@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Bio-Defense: Protocolo 01</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+
+        <div id="scenario-layer"></div>
+
+        <div id="entities-layer">
+            <div id="player"></div>
+            <div id="bullet-container"></div>
+            <div id="enemy-container"></div>
+            <div id="item-container"></div>
+            <div id="particle-container"></div>
+        </div>
+
+        <div id="ui-layer">
+            <div id="hud">
+                <div id="health-container">
+                    <span class="label">BIO-VITALITY</span>
+                    <div id="health-bar-bg"><div id="health-bar"></div></div>
+                </div>
+                <div id="score-container">
+                    <span class="label">VIRUS PURGED:</span>
+                    <span id="score">0000</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="level-intro">
+            <h1 class="pixel-text">LEVEL 1: BIO-LAB ENTRANCE</h1>
+            <p class="pixel-text-sub">ESTADO: INVASIÓN VIRAL DETECTADA</p>
+        </div>
+
+        <div id="screen-menu" class="game-screen active">
+            <h1 class="pixel-text">BIO-DEFENSE</h1>
+            <p class="pixel-text-sub">PROTOCOLO 01</p>
+            <button id="btn-start" class="pixel-btn">[ INICIAR MISIÓN ]</button>
+            <p class="hint-text">← → MOVER &nbsp;|&nbsp; ↑ APUNTAR &nbsp;|&nbsp; ESPACIO / Z DISPARAR</p>
+        </div>
+
+        <div id="screen-gameover" class="game-screen">
+            <h1 class="pixel-text" style="color:#ff3366;">GAME OVER</h1>
+            <p class="pixel-text-sub">INVASIÓN VIRAL NO CONTENIDA</p>
+            <p id="final-score" class="pixel-text" style="font-size:14px; margin-top:20px;"></p>
+            <button id="btn-restart" class="pixel-btn">[ REINTENTAR ]</button>
+        </div>
+
+    </div>
+
+    <!-- CONTROLES MÓVIL — fuera del game-container para no escalar con él -->
+    <div id="mobile-controls">
+        <!-- D-Pad izquierda -->
+        <div id="dpad">
+            <button class="dpad-btn" id="btn-up"    data-key="ArrowUp">▲</button>
+            <div class="dpad-row">
+                <button class="dpad-btn" id="btn-left"  data-key="ArrowLeft">◄</button>
+                <div class="dpad-center"></div>
+                <button class="dpad-btn" id="btn-right" data-key="ArrowRight">►</button>
+            </div>
+            <button class="dpad-btn" id="btn-down"  data-key="ArrowDown">▼</button>
+        </div>
+        <!-- Botón de disparo derecha -->
+        <button id="btn-fire">FIRE</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
