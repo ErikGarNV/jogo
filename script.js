@@ -15,11 +15,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDisplay      = document.getElementById('score');
     const hud               = document.getElementById('hud');
     const levelIntro        = document.getElementById('level-intro');
+    const levelIntroTitle   = document.getElementById('level-intro-title');
+    const levelIntroSub     = document.getElementById('level-intro-sub');
+    const levelDisplay      = document.getElementById('level-display');
     const screenMenu        = document.getElementById('screen-menu');
     const screenGameOver    = document.getElementById('screen-gameover');
+    const screenLevelComplete = document.getElementById('screen-level-complete');
+    const screenVictory     = document.getElementById('screen-victory');
     const finalScoreDisplay = document.getElementById('final-score');
     const btnStart          = document.getElementById('btn-start');
     const btnRestart        = document.getElementById('btn-restart');
+    const btnNextLevel      = document.getElementById('btn-next-level');
+    const btnRestartVictory = document.getElementById('btn-restart-victory');
+
+    // ═══════════════════════════════════════════════
+    // DATOS DE NIVELES Y CARTAS DE AMOR
+    // ═══════════════════════════════════════════════
+    const LEVELS = [
+        { name: 'BIO-LAB ENTRANCE',    sub: 'INVASIÓN VIRAL DETECTADA',      scoreTarget: 150,  enemySpeed: 1.0, spawnDelay: 4500 },
+        { name: 'QUARANTINE ZONE',     sub: 'CONTAMINACIÓN: CRÍTICA',         scoreTarget: 320,  enemySpeed: 1.2, spawnDelay: 4000 },
+        { name: 'RESEARCH WING',       sub: 'MUTACIONES DETECTADAS',          scoreTarget: 520,  enemySpeed: 1.4, spawnDelay: 3700 },
+        { name: 'BIOTECH CORE',        sub: 'PROTOCOLO DE EMERGENCIA',        scoreTarget: 750,  enemySpeed: 1.6, spawnDelay: 3400 },
+        { name: 'VIRAL NEXUS',         sub: 'COLAPSO INMINENTE',              scoreTarget: 1000, enemySpeed: 1.8, spawnDelay: 3100 },
+        { name: 'OUTBREAK CORRIDOR',   sub: 'NIVEL DE AMENAZA: MÁXIMO',       scoreTarget: 1280, enemySpeed: 2.0, spawnDelay: 2800 },
+        { name: 'CONTAINMENT BREACH',  sub: 'BARRERA ROTA — AVANZAR',        scoreTarget: 1600, enemySpeed: 2.2, spawnDelay: 2500 },
+        { name: 'ANTIGEN CHAMBER',     sub: 'SÍNTESIS DE ANTÍDOTO INICIADA',  scoreTarget: 1950, enemySpeed: 2.4, spawnDelay: 2300 },
+        { name: 'PATHOGEN SUMMIT',     sub: 'FUENTE VIRAL LOCALIZADA',        scoreTarget: 2350, enemySpeed: 2.6, spawnDelay: 2100 },
+        { name: 'FINAL PROTOCOL',      sub: 'ERRADICACIÓN TOTAL — AHORA',     scoreTarget: 2800, enemySpeed: 2.9, spawnDelay: 1800 },
+    ];
+
+    const LOVE_LETTERS = [
+        {
+            text: 'Ailyn, mi amor,\ntu sonrisa ilumina hasta mis días más grises. Amo compartir contigo esos mundos que nos hacen reír y soñar. Eres mi persona favorita y solo quiero hacerte feliz cada día.',
+            sign: 'Te amo mucho. — Tuyo siempre, Duval ❤'
+        },
+        {
+            text: 'Mi Ailyn,\ncada vez que te miro el corazón me late más fuerte. Amo tu energía, tu voz cuando cantas y cómo todo se siente mejor a tu lado. Quiero ser quien te haga sonreír siempre.',
+            sign: 'Te amo con todo mi ser. — Para ti, Duval ❤'
+        },
+        {
+            text: 'Ailyn mía,\neres la chispa que hace mi vida más bonita. Compartimos risas, sueños y locuras que nadie más entiende, y eso me hace sentir el hombre más afortunado. Quiero cuidarte y verte feliz.',
+            sign: 'Te amo profundamente. — Tuyo, Duval ❤'
+        },
+        {
+            text: 'Para mi Ailyn,\ncuando estás cerca, el mundo se vuelve más dulce. Amo tu luz, tu forma de ser tan única y cómo me haces sentir en casa. Prometo estar siempre aquí, abrazándote fuerte.',
+            sign: 'Te amo más de lo que imaginas. — Siempre tuyo, Duval ❤'
+        },
+        {
+            text: 'Ailyn, amor de mi vida,\ntu risa es mi canción favorita y tu presencia mi refugio. En cada momento contigo siento que todo encaja. Quiero proteger esa sonrisa y hacer cada día más hermoso para ti.',
+            sign: 'Te amo con el alma. — Tuyo para siempre, Duval ❤'
+        },
+        {
+            text: 'Mi hermosa Ailyn,\neres el sueño que nunca supe que necesitaba. Amo cómo iluminas todo a tu alrededor y cómo nuestros corazones laten al mismo ritmo. Quiero cuidarte y quedarme a tu lado por toda la eternidad.',
+            sign: 'Te amo inmensamente. — Con todo mi corazón, Duval ❤'
+        },
+        {
+            text: 'Ailyn, mi todo,\ncontigo el tiempo se detiene y solo existe lo bonito. Eres mi paz, mi alegría y la razón por la que creo en el amor verdadero. Déjame cuidarte siempre, abrazarte en los días grises.',
+            sign: 'Te amo como nunca amé a nadie. — Eterno tuyo, Duval ❤'
+        },
+        {
+            text: 'Mi Ailyn adorada,\ncada latido mío lleva tu nombre. Eres la magia en mi vida diaria, la que hace que todo valga la pena. Quiero ser tu escudo, tu apoyo y el amor que te recuerde cada día lo increíble que eres.',
+            sign: 'Te amo hasta el infinito y más. — Tuyo por siempre, Duval ❤'
+        },
+        {
+            text: 'Ailyn, luz de mi vida,\nsin ti nada tendría el mismo color. Amo cada parte de ti, tu alma tan brillante y cómo completamos nuestros mundos raros y hermosos. Prometo amarte, cuidarte y elegirte todos los días.',
+            sign: 'Eres mi para siempre. — Hasta el último aliento, Duval ❤'
+        },
+        {
+            text: 'Mi Ailyn, amor eterno,\nsi el universo entero conspiró para que nos encontráramos, yo le agradezco de rodillas. Eres mi refugio, mi mayor alegría y el latido que mantiene vivo mi corazón. Prometo llenarte de risas y besos cada día.',
+            sign: 'Te amo más allá del tiempo. Eres mi hogar. — Siempre, siempre tuyo, Duval ❤'
+        },
+    ];
 
     // ═══════════════════════════════════════════════
     // 2. CONFIGURACIÓN
@@ -66,7 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentHealth:      100,
         lastShotTime:       0,
         fireRate:           280,
-        isAdrenalineActive: false
+        isAdrenalineActive: false,
+        currentLevel:       0,   // 0-based index into LEVELS
+        levelScore:         0    // score accumulated within this level
     };
 
     // ═══════════════════════════════════════════════
@@ -139,8 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setPhase(phase) {
         gamePhase = phase;
-        screenMenu.classList.toggle('active',     phase === 'MENU');
-        screenGameOver.classList.toggle('active', phase === 'GAMEOVER');
+        screenMenu.classList.toggle('active',          phase === 'MENU');
+        screenGameOver.classList.toggle('active',      phase === 'GAMEOVER');
+        screenLevelComplete.classList.toggle('active', phase === 'LEVEL_COMPLETE');
+        screenVictory.classList.toggle('active',       phase === 'VICTORY');
         if (phase === 'PLAYING') startGame();
     }
 
@@ -149,6 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAllEntities();
         updateUI();
 
+        const lvl = LEVELS[gs.currentLevel];
+        levelIntroTitle.textContent = `LEVEL ${gs.currentLevel + 1}: ${lvl.name}`;
+        levelIntroSub.textContent   = lvl.sub;
         levelIntro.classList.remove('running');
         void levelIntro.offsetWidth;
         levelIntro.classList.add('running');
@@ -163,8 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function scheduleNextSpawn() {
         if (spawnInterval) clearInterval(spawnInterval);
-        const delay = Math.max(1500,
-            S.enemyRowSpawnDelay - Math.floor(gs.currentScore / S.difficultyStep) * 300
+        const baseDelay = LEVELS[gs.currentLevel].spawnDelay;
+        const delay = Math.max(1200,
+            baseDelay - Math.floor(gs.levelScore / S.difficultyStep) * 150
         );
         spawnInterval = setInterval(() => {
             if (gamePhase !== 'PLAYING') { clearInterval(spawnInterval); return; }
@@ -180,19 +254,61 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => screenGameOver.classList.add('active'), 600);
     }
 
+    function triggerLevelComplete() {
+        if (gamePhase !== 'PLAYING') return;
+        gamePhase = 'LEVEL_COMPLETE';
+        if (spawnInterval) clearInterval(spawnInterval);
+        // Bonus de vida al completar nivel
+        gs.currentHealth = Math.min(100, gs.currentHealth + 20);
+        updateUI();
+        clearAllEntities();
+        gs.enemies.length  = 0;
+        gs.bullets.length  = 0;
+        gs.powerUps.length = 0;
+
+        const isLastLevel = gs.currentLevel >= LEVELS.length - 1;
+
+        if (isLastLevel) {
+            // Show victory + last letter
+            const letter = LOVE_LETTERS[gs.currentLevel];
+            document.getElementById('victory-letter-text').textContent = letter.text;
+            document.getElementById('victory-letter-sign').textContent = letter.sign;
+            setTimeout(() => {
+                gamePhase = 'VICTORY';
+                screenVictory.classList.add('active');
+            }, 600);
+        } else {
+            const letter = LOVE_LETTERS[gs.currentLevel];
+            document.getElementById('letter-level-tag').textContent =
+                `✦ NIVEL ${gs.currentLevel + 1} COMPLETADO ✦`;
+            document.getElementById('letter-text').textContent  = letter.text;
+            document.getElementById('letter-sign').textContent  = letter.sign;
+            setTimeout(() => {
+                gamePhase = 'LEVEL_COMPLETE';
+                screenLevelComplete.classList.add('active');
+            }, 600);
+        }
+    }
+
     function resetGameState() {
         gs.playerX            = S.width / 2;
         gs.bullets.length     = 0;
         gs.enemies.length     = 0;
         gs.powerUps.length    = 0;
         gs.gameActive         = true;
-        gs.currentScore       = 0;
-        gs.currentHealth      = 100;
         gs.lastShotTime       = 0;
         gs.fireRate           = 280;
         gs.isAdrenalineActive = false;
+        gs.levelScore         = 0;
         player.className      = 'idle-front';
         player.style.transform = 'translateX(0px)';
+    }
+
+    function fullReset() {
+        gs.currentScore   = 0;
+        gs.currentHealth  = 100;
+        gs.currentLevel   = 0;
+        resetGameState();
     }
 
     function clearAllEntities() {
@@ -202,9 +318,18 @@ document.addEventListener('DOMContentLoaded', () => {
         particleContainer.innerHTML = '';
     }
 
-    btnStart.addEventListener('click',   () => setPhase('PLAYING'));
+    btnStart.addEventListener('click',   () => { fullReset(); setPhase('PLAYING'); });
     btnRestart.addEventListener('click', () => {
         screenGameOver.classList.remove('active');
+        setTimeout(() => { fullReset(); setPhase('PLAYING'); }, 400);
+    });
+    btnRestartVictory.addEventListener('click', () => {
+        screenVictory.classList.remove('active');
+        setTimeout(() => { fullReset(); setPhase('PLAYING'); }, 400);
+    });
+    btnNextLevel.addEventListener('click', () => {
+        screenLevelComplete.classList.remove('active');
+        gs.currentLevel++;
         setTimeout(() => setPhase('PLAYING'), 400);
     });
 
@@ -348,9 +473,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gamePhase !== 'PLAYING') return;
         const cols    = 8;
         const spacing = (S.width - 100) / cols;
+        const lvlMod  = LEVELS[gs.currentLevel].enemySpeed;
 
         for (let i = 0; i < cols; i++) {
-            const type     = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+            const baseType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+            // Clone type and apply level speed multiplier
+            const type = { ...baseType, speed: baseType.speed * lvlMod };
             const enemyDiv = document.createElement('div');
             enemyDiv.className = `enemy entity ${type.cls}`;
 
@@ -366,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 type,
                 hp:         type.hp,
                 frame:      0,
-                frameTick:  Math.floor(Math.random() * 16) // offset para desincronizar
+                frameTick:  Math.floor(Math.random() * 16)
             });
         }
     }
@@ -529,7 +657,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     enemy.element.remove();
                     gs.enemies.splice(ei, 1);
                     gs.currentScore += enemy.type.score;
+                    gs.levelScore   += enemy.type.score;
                     updateUI();
+                    // Check level completion
+                    if (gs.levelScore >= LEVELS[gs.currentLevel].scoreTarget) {
+                        triggerLevelComplete();
+                    }
                 } else {
                     // Tank: flash al recibir daño
                     enemy.element.style.opacity = '0.4';
@@ -553,6 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
         healthBar.style.width = `${gs.currentHealth}%`;
         healthBar.classList.toggle('critical', gs.currentHealth <= 30);
         scoreDisplay.textContent = String(gs.currentScore).padStart(4, '0');
+        if (levelDisplay) levelDisplay.textContent = `LEVEL ${gs.currentLevel + 1}`;
     }
 
     // ═══════════════════════════════════════════════

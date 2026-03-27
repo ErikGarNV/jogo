@@ -385,3 +385,100 @@ html, body {
 #btn-fire.pressed {
     background: rgba(255,51,102,0.5);
 }
+/* ── 15. PANTALLA CARTA DE AMOR ── */
+#screen-level-complete {
+    background: rgba(0,0,0,0.92);
+}
+#letter-envelope {
+    font-size: 52px;
+    animation: envelopePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    margin-bottom: 10px;
+}
+@keyframes envelopePop {
+    from { transform: scale(0) rotate(-15deg); opacity:0; }
+    to   { transform: scale(1) rotate(0deg);   opacity:1; }
+}
+#letter-level-tag {
+    margin-bottom: 18px;
+    letter-spacing: 2px;
+}
+#letter-card {
+    background: linear-gradient(135deg, #0d1f1a 0%, #081510 100%);
+    border: 2px solid #00ffcc44;
+    border-radius: 4px;
+    padding: 28px 36px;
+    max-width: 560px;
+    text-align: left;
+    box-shadow: 0 0 30px #00ffcc22, inset 0 0 20px #00ffcc08;
+    animation: letterSlideIn 0.5s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    position: relative;
+}
+#letter-card::before {
+    content: '❤';
+    position: absolute;
+    top: -12px; left: 50%; transform: translateX(-50%);
+    font-size: 20px;
+    color: #ff3366;
+    text-shadow: 0 0 10px #ff3366;
+}
+@keyframes letterSlideIn {
+    from { transform: translateY(30px); opacity:0; }
+    to   { transform: translateY(0);    opacity:1; }
+}
+#letter-text {
+    color: #c8ffe8;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    line-height: 2;
+    margin: 0 0 16px 0;
+}
+#letter-sign {
+    color: #ff3366;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    text-align: right;
+    margin: 0;
+    text-shadow: 0 0 8px #ff336688;
+}
+#victory-letter-card {
+    background: linear-gradient(135deg, #1f1000 0%, #0f0800 100%);
+    border: 2px solid #ffcc0044;
+    border-radius: 4px;
+    padding: 28px 36px;
+    max-width: 560px;
+    text-align: left;
+    box-shadow: 0 0 30px #ffcc0022, inset 0 0 20px #ffcc0008;
+    animation: letterSlideIn 0.5s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    position: relative;
+    margin-bottom: 10px;
+}
+#victory-letter-card::before {
+    content: '♾';
+    position: absolute;
+    top: -12px; left: 50%; transform: translateX(-50%);
+    font-size: 20px;
+    color: #ffcc00;
+    text-shadow: 0 0 10px #ffcc00;
+}
+#victory-letter-text {
+    color: #fff8cc;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    line-height: 2;
+    margin: 0 0 16px 0;
+}
+#victory-letter-sign {
+    color: #ffcc00;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    text-align: right;
+    margin: 0;
+    text-shadow: 0 0 8px #ffcc0088;
+}
+/* HUD nivel */
+#level-display {
+    color: #00ffcc;
+    font-size: 11px;
+    text-shadow: 2px 2px #000;
+    text-align: center;
+}

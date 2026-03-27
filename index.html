@@ -30,12 +30,13 @@
                     <span class="label">VIRUS PURGED:</span>
                     <span id="score">0000</span>
                 </div>
+                <div id="level-display">LEVEL 1</div>
             </div>
         </div>
 
         <div id="level-intro">
-            <h1 class="pixel-text">LEVEL 1: BIO-LAB ENTRANCE</h1>
-            <p class="pixel-text-sub">ESTADO: INVASIÓN VIRAL DETECTADA</p>
+            <h1 class="pixel-text" id="level-intro-title">LEVEL 1: BIO-LAB ENTRANCE</h1>
+            <p class="pixel-text-sub" id="level-intro-sub">ESTADO: INVASIÓN VIRAL DETECTADA</p>
         </div>
 
         <div id="screen-menu" class="game-screen active">
@@ -50,6 +51,27 @@
             <p class="pixel-text-sub">INVASIÓN VIRAL NO CONTENIDA</p>
             <p id="final-score" class="pixel-text" style="font-size:14px; margin-top:20px;"></p>
             <button id="btn-restart" class="pixel-btn">[ REINTENTAR ]</button>
+        </div>
+
+        <div id="screen-level-complete" class="game-screen">
+            <div id="letter-envelope">💌</div>
+            <p id="letter-level-tag" class="pixel-text-sub"></p>
+            <div id="letter-card">
+                <p id="letter-text"></p>
+                <p id="letter-sign"></p>
+            </div>
+            <button id="btn-next-level" class="pixel-btn">[ SIGUIENTE NIVEL ]</button>
+        </div>
+
+        <div id="screen-victory" class="game-screen">
+            <h1 class="pixel-text" style="color:#ffcc00;">¡MISIÓN CUMPLIDA!</h1>
+            <p class="pixel-text-sub" style="color:#ff3366;">PROTOCOLO 01 — COMPLETADO</p>
+            <div id="letter-envelope" style="font-size:60px; margin:20px 0;">🏆💌</div>
+            <div id="victory-letter-card">
+                <p id="victory-letter-text"></p>
+                <p id="victory-letter-sign"></p>
+            </div>
+            <button id="btn-restart-victory" class="pixel-btn">[ JUGAR DE NUEVO ]</button>
         </div>
 
     </div>
