@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const levelIntroTitle   = document.getElementById('level-intro-title');
     const levelIntroSub     = document.getElementById('level-intro-sub');
     const levelDisplay      = document.getElementById('level-display');
+    const powerupStatus     = document.getElementById('powerup-status');
     const screenMenu        = document.getElementById('screen-menu');
     const screenGameOver    = document.getElementById('screen-gameover');
     const screenLevelComplete = document.getElementById('screen-level-complete');
@@ -32,16 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // DATOS DE NIVELES Y CARTAS DE AMOR
     // ═══════════════════════════════════════════════
     const LEVELS = [
-        { name: 'BIO-LAB ENTRANCE',    sub: 'INVASIÓN VIRAL DETECTADA',      scoreTarget: 150,  enemySpeed: 1.0, spawnDelay: 4500 },
-        { name: 'QUARANTINE ZONE',     sub: 'CONTAMINACIÓN: CRÍTICA',         scoreTarget: 320,  enemySpeed: 1.2, spawnDelay: 4000 },
-        { name: 'RESEARCH WING',       sub: 'MUTACIONES DETECTADAS',          scoreTarget: 520,  enemySpeed: 1.4, spawnDelay: 3700 },
-        { name: 'BIOTECH CORE',        sub: 'PROTOCOLO DE EMERGENCIA',        scoreTarget: 750,  enemySpeed: 1.6, spawnDelay: 3400 },
-        { name: 'VIRAL NEXUS',         sub: 'COLAPSO INMINENTE',              scoreTarget: 1000, enemySpeed: 1.8, spawnDelay: 3100 },
-        { name: 'OUTBREAK CORRIDOR',   sub: 'NIVEL DE AMENAZA: MÁXIMO',       scoreTarget: 1280, enemySpeed: 2.0, spawnDelay: 2800 },
-        { name: 'CONTAINMENT BREACH',  sub: 'BARRERA ROTA — AVANZAR',        scoreTarget: 1600, enemySpeed: 2.2, spawnDelay: 2500 },
-        { name: 'ANTIGEN CHAMBER',     sub: 'SÍNTESIS DE ANTÍDOTO INICIADA',  scoreTarget: 1950, enemySpeed: 2.4, spawnDelay: 2300 },
-        { name: 'PATHOGEN SUMMIT',     sub: 'FUENTE VIRAL LOCALIZADA',        scoreTarget: 2350, enemySpeed: 2.6, spawnDelay: 2100 },
-        { name: 'FINAL PROTOCOL',      sub: 'ERRADICACIÓN TOTAL — AHORA',     scoreTarget: 2800, enemySpeed: 2.9, spawnDelay: 1800 },
+        // FÁCIL (1-3): pocos enemigos, lentos, muchos drops, solo peons
+        { name: 'BIO-LAB ENTRANCE',   sub: 'INVASIÓN VIRAL DETECTADA',      scoreTarget:  80,  enemySpeed: 0.55, spawnDelay: 5500, cols: 4, dropChance: 0.60, tankChance: 0.00, zigzagChance: 0.00 },
+        { name: 'QUARANTINE ZONE',    sub: 'CONTAMINACIÓN DETECTADA',        scoreTarget: 160,  enemySpeed: 0.70, spawnDelay: 5000, cols: 5, dropChance: 0.55, tankChance: 0.05, zigzagChance: 0.05 },
+        { name: 'RESEARCH WING',      sub: 'MUTACIONES MENORES DETECTADAS',  scoreTarget: 280,  enemySpeed: 0.85, spawnDelay: 4500, cols: 6, dropChance: 0.50, tankChance: 0.10, zigzagChance: 0.10 },
+        // INTERMEDIO (4-5): ritmo normal, mezcla de tipos
+        { name: 'BIOTECH CORE',       sub: 'ALERTA DE MUTACIÓN ACTIVA',      scoreTarget: 420,  enemySpeed: 1.00, spawnDelay: 4000, cols: 6, dropChance: 0.45, tankChance: 0.20, zigzagChance: 0.15 },
+        { name: 'VIRAL NEXUS',        sub: 'COLAPSO PARCIAL DETECTADO',      scoreTarget: 580,  enemySpeed: 1.15, spawnDelay: 3600, cols: 7, dropChance: 0.42, tankChance: 0.25, zigzagChance: 0.20 },
+        // DIFÍCIL creciente (6-10): cada nivel sube velocidad + cols + menos drops
+        { name: 'OUTBREAK CORRIDOR',  sub: 'NIVEL DE AMENAZA: ALTO',         scoreTarget: 780,  enemySpeed: 1.35, spawnDelay: 3200, cols: 7, dropChance: 0.40, tankChance: 0.30, zigzagChance: 0.25 },
+        { name: 'CONTAINMENT BREACH', sub: 'BARRERA ROTA — AVANZAR',         scoreTarget:1020,  enemySpeed: 1.60, spawnDelay: 2900, cols: 8, dropChance: 0.38, tankChance: 0.35, zigzagChance: 0.30 },
+        { name: 'ANTIGEN CHAMBER',    sub: 'SÍNTESIS DE ANTÍDOTO INICIADA',  scoreTarget:1300,  enemySpeed: 1.90, spawnDelay: 2600, cols: 8, dropChance: 0.38, tankChance: 0.40, zigzagChance: 0.35 },
+        { name: 'PATHOGEN SUMMIT',    sub: 'FUENTE VIRAL LOCALIZADA',        scoreTarget:1620,  enemySpeed: 2.20, spawnDelay: 2300, cols: 9, dropChance: 0.40, tankChance: 0.45, zigzagChance: 0.40 },
+        { name: 'FINAL PROTOCOL',     sub: 'ERRADICACIÓN TOTAL — AHORA',     scoreTarget:2000,  enemySpeed: 2.55, spawnDelay: 2000, cols: 9, dropChance: 0.45, tankChance: 0.50, zigzagChance: 0.45 },
     ];
 
     const LOVE_LETTERS = [
@@ -133,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lastShotTime:       0,
         fireRate:           280,
         isAdrenalineActive: false,
+        isMultishotActive:  false,
         currentLevel:       0,   // 0-based index into LEVELS
         levelScore:         0    // score accumulated within this level
     };
@@ -299,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gs.lastShotTime       = 0;
         gs.fireRate           = 280;
         gs.isAdrenalineActive = false;
+        gs.isMultishotActive  = false;
         gs.levelScore         = 0;
         player.className      = 'idle-front';
         player.style.transform = 'translateX(0px)';
@@ -401,13 +407,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (keys['ArrowDown']) {
             vy = -S.bulletSpeed; dirClass = 'dir-down';
         } else if (keys['ArrowLeft'] && keys['ArrowRight']) {
-            vy = S.bulletSpeed;  dirClass = 'dir-up';   // ambas → arriba
+            vy = S.bulletSpeed;  dirClass = 'dir-up';
         } else if (keys['ArrowLeft']) {
             vx = -S.bulletSpeed; dirClass = 'dir-left';
         } else if (keys['ArrowRight']) {
             vx = S.bulletSpeed;  dirClass = 'dir-right';
         } else {
-            vy = S.bulletSpeed;  dirClass = 'dir-up';   // default arriba
+            vy = S.bulletSpeed;  dirClass = 'dir-up';
         }
 
         // Pose de disparo en el personaje
@@ -416,18 +422,36 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (dirClass === 'dir-left')  player.className = 'shoot-left';
         else                               player.className = 'shoot-front';
 
-        const bulletDiv  = document.createElement('div');
-        bulletDiv.className = `bullet ${dirClass}`;
-
-        // Origen: centro del personaje
         const bx = gs.playerX - 7;
-        const by = 160; // px desde el bottom (altura aproximada del arma)
+        const by = 160;
 
-        bulletDiv.style.left   = `${bx}px`;
-        bulletDiv.style.bottom = `${by}px`;
-        bulletContainer.appendChild(bulletDiv);
-
-        gs.bullets.push({ element: bulletDiv, x: bx, y: by, vx, vy });
+        if (gs.isMultishotActive) {
+            // 3 balas: centro + ±18° spread
+            const spread = 0.32; // radianes (~18°)
+            const baseAngle = Math.atan2(vy, vx);
+            const angles = [baseAngle - spread, baseAngle, baseAngle + spread];
+            angles.forEach((ang, idx) => {
+                const bDiv = document.createElement('div');
+                bDiv.className = `bullet ${dirClass} multishot-bullet`;
+                bDiv.style.left   = `${bx + (idx - 1) * 18}px`;
+                bDiv.style.bottom = `${by}px`;
+                bulletContainer.appendChild(bDiv);
+                gs.bullets.push({
+                    element: bDiv,
+                    x: bx + (idx - 1) * 18,
+                    y: by,
+                    vx: Math.cos(ang) * S.bulletSpeed,
+                    vy: Math.sin(ang) * S.bulletSpeed
+                });
+            });
+        } else {
+            const bulletDiv = document.createElement('div');
+            bulletDiv.className = `bullet ${dirClass}`;
+            bulletDiv.style.left   = `${bx}px`;
+            bulletDiv.style.bottom = `${by}px`;
+            bulletContainer.appendChild(bulletDiv);
+            gs.bullets.push({ element: bulletDiv, x: bx, y: by, vx, vy });
+        }
     }
 
     function updateBullets() {
@@ -471,13 +495,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function spawnEnemyRow() {
         if (gamePhase !== 'PLAYING') return;
-        const cols    = 8;
+        const lvl     = LEVELS[gs.currentLevel];
+        const cols    = lvl.cols;
         const spacing = (S.width - 100) / cols;
-        const lvlMod  = LEVELS[gs.currentLevel].enemySpeed;
+        const lvlMod  = lvl.enemySpeed;
 
         for (let i = 0; i < cols; i++) {
-            const baseType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
-            // Clone type and apply level speed multiplier
+            // Ponderación de tipos según nivel
+            const r = Math.random();
+            let baseType;
+            if (r < lvl.tankChance) {
+                baseType = enemyTypes[1]; // tank
+            } else if (r < lvl.tankChance + lvl.zigzagChance) {
+                baseType = enemyTypes[2]; // zigzag
+            } else {
+                baseType = enemyTypes[0]; // peon
+            }
+
             const type = { ...baseType, speed: baseType.speed * lvlMod };
             const enemyDiv = document.createElement('div');
             enemyDiv.className = `enemy entity ${type.cls}`;
@@ -492,9 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 element: enemyDiv,
                 x: startX, y: -128,
                 type,
-                hp:         type.hp,
-                frame:      0,
-                frameTick:  Math.floor(Math.random() * 16)
+                hp:        type.hp,
+                frame:     0,
+                frameTick: Math.floor(Math.random() * 16)
             });
         }
     }
@@ -531,11 +565,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // ═══════════════════════════════════════════════
     // 12. POWER-UPS
     // ═══════════════════════════════════════════════
-    const itemTypes = ['item-adrenaline', 'item-medkit', 'item-serum'];
+    const itemTypes = ['item-adrenaline', 'item-medkit', 'item-serum', 'item-multishot'];
 
     function dropItem(x, y) {
-        if (Math.random() > S.dropChance) return;
-        const type    = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+        const lvl = LEVELS[gs.currentLevel];
+        if (Math.random() > lvl.dropChance) return;
+
+        // En niveles difíciles (6-10), medkit aparece con mayor frecuencia
+        let pool;
+        if (gs.currentLevel >= 7) {
+            pool = ['item-medkit','item-medkit','item-adrenaline','item-multishot','item-serum'];
+        } else if (gs.currentLevel >= 5) {
+            pool = ['item-medkit','item-adrenaline','item-multishot','item-serum','item-medkit'];
+        } else {
+            pool = ['item-medkit','item-adrenaline','item-multishot','item-serum'];
+        }
+        const type    = pool[Math.floor(Math.random() * pool.length)];
         const itemDiv = document.createElement('div');
         itemDiv.className = `item entity ${type}`;
         itemDiv.style.left = `${x}px`;
@@ -564,23 +609,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updatePowerupHUD() {
+        if (!powerupStatus) return;
+        powerupStatus.innerHTML = '';
+        if (gs.isAdrenalineActive) {
+            const p = document.createElement('span');
+            p.className = 'status-pill adrena';
+            p.textContent = '⚡ ADREN';
+            powerupStatus.appendChild(p);
+        }
+        if (gs.isMultishotActive) {
+            const p = document.createElement('span');
+            p.className = 'status-pill multi';
+            p.textContent = '✦ MULTI';
+            powerupStatus.appendChild(p);
+        }
+    }
+
     function applyPowerUp(type) {
         if (type === 'item-medkit') {
-            gs.currentHealth = Math.min(100, gs.currentHealth + 25);
+            gs.currentHealth = Math.min(100, gs.currentHealth + 30);
             updateUI();
+            showPickupFX('❤ +30 HP', '#ff3366');
         } else if (type === 'item-adrenaline' && !gs.isAdrenalineActive) {
             gs.isAdrenalineActive = true;
-            gs.fireRate = 100;
+            gs.fireRate = 90;
             hud.classList.add('adrenaline-active');
+            showPickupFX('⚡ ADRENALINA', '#ffcc00');
+            updatePowerupHUD();
             setTimeout(() => {
                 gs.fireRate = 280;
                 gs.isAdrenalineActive = false;
                 hud.classList.remove('adrenaline-active');
-            }, 5000);
+                updatePowerupHUD();
+            }, 6000);
         } else if (type === 'item-serum') {
             gs.enemies.forEach(e => e.element.remove());
             gs.enemies.length = 0;
+            showPickupFX('☣ SUERO VIRAL', '#00ffcc');
+        } else if (type === 'item-multishot' && !gs.isMultishotActive) {
+            gs.isMultishotActive = true;
+            hud.classList.add('multishot-active');
+            showPickupFX('✦ MULTI-SHOT', '#aa88ff');
+            updatePowerupHUD();
+            setTimeout(() => {
+                gs.isMultishotActive = false;
+                hud.classList.remove('multishot-active');
+                updatePowerupHUD();
+            }, 8000);
         }
+    }
+
+    function showPickupFX(text, color) {
+        const fx = document.createElement('div');
+        fx.textContent = text;
+        fx.style.cssText = `
+            position:absolute; left:50%; top:55%;
+            transform:translateX(-50%);
+            color:${color}; font-family:'Press Start 2P',cursive;
+            font-size:13px; text-shadow:0 0 12px ${color};
+            z-index:15; pointer-events:none;
+            animation: pickupFloat 1.4s forwards;
+        `;
+        gameContainer.appendChild(fx);
+        setTimeout(() => fx.remove(), 1400);
     }
 
     // ═══════════════════════════════════════════════
