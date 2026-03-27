@@ -18,6 +18,8 @@ html, body {
     background: #000;
     font-family: 'Press Start 2P', cursive;
     touch-action: none; /* evita scroll en móvil */
+    /* Safe area support */
+    padding-top: env(safe-area-inset-top, 0px);
 }
 
 /* ── 2. GAME CONTAINER ── */
@@ -307,83 +309,133 @@ html, body {
 #game-container.shaking { animation: screenShake 0.35s ease; }
 
 /* ══════════════════════════════════════════
-   14. CONTROLES MÓVIL
-       posición fija, fuera del game-container
+   14. CONTROLES MÓVIL — JOYSTICK VIRTUAL
    ══════════════════════════════════════════ */
+
+/* Base: hidden on desktop */
 #mobile-controls {
     position: fixed;
     inset: 0;
-    pointer-events: none; /* solo los botones capturan eventos */
+    pointer-events: none;
     z-index: 100;
-    /* Ocultar en desktop si no hay touch */
     display: none;
+    /* Safe area for notch/home bar */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left:   env(safe-area-inset-left,   0px);
+    padding-right:  env(safe-area-inset-right,  0px);
 }
-/* Mostrar solo si el dispositivo tiene touch */
+
+/* Show on touch devices */
 @media (hover: none) and (pointer: coarse) {
     #mobile-controls { display: block; }
 }
 
-/* D-pad — esquina inferior izquierda */
-#dpad {
+/* ── Zonas de control ── */
+#joystick-zone {
     position: absolute;
-    bottom: 32px;
-    left: 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    pointer-events: all;
-}
-.dpad-row {
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 220px;
     display: flex;
     align-items: center;
-    gap: 4px;
-}
-.dpad-center {
-    width: 52px; height: 52px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 4px;
-}
-.dpad-btn {
-    width: 64px; height: 64px;
-    background: rgba(0,255,204,0.15);
-    border: 2px solid rgba(0,255,204,0.4);
-    color: #00ffcc;
-    font-size: 22px;
-    border-radius: 8px;
-    cursor: pointer;
+    justify-content: center;
     pointer-events: all;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.1s;
-}
-.dpad-btn:active,
-.dpad-btn.pressed {
-    background: rgba(0,255,204,0.4);
 }
 
-/* Botón FIRE — esquina inferior derecha */
-#btn-fire {
+#fire-zone {
     position: absolute;
-    bottom: 40px;
-    right: 40px;
-    width: 110px; height: 110px;
-    background: rgba(255,51,102,0.2);
-    border: 3px solid rgba(255,51,102,0.7);
-    color: #ff3366;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 14px;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+}
+
+/* ── Joystick base ── */
+#joystick-base {
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(0,255,204,0.12) 0%, rgba(0,255,204,0.04) 70%);
+    border: 2px solid rgba(0,255,204,0.35);
+    border-radius: 50%;
+    position: relative;
+    touch-action: none;
+    box-shadow: 0 0 20px rgba(0,255,204,0.15), inset 0 0 30px rgba(0,255,204,0.05);
+}
+
+#joystick-knob {
+    width: 54px;
+    height: 54px;
+    background: radial-gradient(circle at 35% 35%, rgba(0,255,204,0.9), rgba(0,200,160,0.7));
+    border: 2px solid rgba(0,255,204,0.8);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px rgba(0,255,204,0.5), 0 2px 8px rgba(0,0,0,0.5);
+    transition: transform 0.05s ease;
+    pointer-events: none;
+}
+
+/* ── Botón FIRE ── */
+#btn-fire {
+    width: 130px;
+    height: 130px;
+    background: radial-gradient(circle, rgba(255,51,102,0.25) 0%, rgba(255,51,102,0.08) 70%);
+    border: 3px solid rgba(255,51,102,0.8);
     border-radius: 50%;
     cursor: pointer;
     pointer-events: all;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
-    transition: background 0.1s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    box-shadow: 0 0 25px rgba(255,51,102,0.2), inset 0 0 20px rgba(255,51,102,0.05);
+    transition: background 0.08s, box-shadow 0.08s, transform 0.08s;
+    touch-action: none;
+}
+#fire-icon  { font-size: 28px; line-height: 1; }
+#fire-label {
+    color: #ff3366;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    text-shadow: 0 0 8px #ff3366;
 }
 #btn-fire:active,
 #btn-fire.pressed {
-    background: rgba(255,51,102,0.5);
+    background: radial-gradient(circle, rgba(255,51,102,0.55) 0%, rgba(255,51,102,0.25) 70%);
+    box-shadow: 0 0 35px rgba(255,51,102,0.5), inset 0 0 20px rgba(255,51,102,0.15);
+    transform: scale(0.94);
+}
+
+/* ── TABLET: controles más grandes ── */
+@media (min-width: 768px) and (hover: none) and (pointer: coarse) {
+    #joystick-zone,
+    #fire-zone   { height: 260px; }
+    #joystick-base { width: 170px; height: 170px; }
+    #joystick-knob { width: 66px;  height: 66px;  }
+    #btn-fire      { width: 155px; height: 155px; }
+    #fire-icon     { font-size: 34px; }
+    #fire-label    { font-size: 13px; }
+}
+
+/* ── LANDSCAPE en móvil pequeño: ajustar altura ── */
+@media (max-height: 500px) and (hover: none) and (pointer: coarse) {
+    #joystick-zone,
+    #fire-zone   { height: 160px; }
+    #joystick-base { width: 110px; height: 110px; }
+    #joystick-knob { width: 42px;  height: 42px;  }
+    #btn-fire      { width: 100px; height: 100px; }
+    #fire-icon     { font-size: 22px; }
+    #fire-label    { font-size: 9px; }
 }
 /* ── 15. PANTALLA CARTA DE AMOR ── */
 #screen-level-complete {
@@ -531,4 +583,195 @@ html, body {
 @keyframes pillPulse {
     from { opacity: 0.7; }
     to   { opacity: 1;   }
+}
+
+/* ── 19. BOTÓN PAUSA EN HUD ── */
+#btn-pause {
+    background: transparent;
+    border: 2px solid #00ffcc55;
+    color: #00ffcc;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    padding: 6px 14px;
+    cursor: pointer;
+    pointer-events: all;
+    border-radius: 3px;
+    line-height: 1;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 6px #00ffcc22;
+    -webkit-tap-highlight-color: transparent;
+    align-self: flex-start;
+}
+#btn-pause:hover,
+#btn-pause:active {
+    background: #00ffcc22;
+    border-color: #00ffcc;
+    box-shadow: 0 0 16px #00ffcc44;
+}
+
+/* ── 20. PANTALLA DE PAUSA ── */
+#screen-pause {
+    background: rgba(0, 0, 0, 0.90);
+    backdrop-filter: blur(4px);
+    gap: 18px;
+}
+
+#pause-icon {
+    font-size: 52px;
+    animation: pauseIconPulse 1.4s ease-in-out infinite alternate;
+    margin-bottom: 4px;
+}
+@keyframes pauseIconPulse {
+    from { opacity: 0.55; transform: scale(0.95); }
+    to   { opacity: 1.00; transform: scale(1.05); }
+}
+
+#screen-pause .pixel-text {
+    text-shadow: 0 0 20px #00ffcc88, 4px 4px #000;
+}
+
+/* Separador visual entre botones de pausa */
+#btn-resume {
+    margin-top: 8px;
+}
+#btn-menu-pause {
+    margin-top: 0;
+}
+
+/* ── Touch: ocultar btn-pause en móvil si molesta
+   (lo tiene igual en móvil, pero más pequeño) ── */
+@media (hover: none) and (pointer: coarse) {
+    #btn-pause {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+}
+.secondary-btn {
+    font-size: 11px;
+    padding: 12px 28px;
+    margin-top: 0;
+    border-color: #00ffcc66;
+    color: #00ffcc99;
+    box-shadow: 0 0 8px #00ffcc22;
+}
+.secondary-btn:hover,
+.secondary-btn:active {
+    border-color: #00ffcc;
+    color: #000;
+    background: #00ffcc;
+    box-shadow: 0 0 20px #00ffcc;
+}
+
+/* ── 18. PANTALLA VER NIVELES ── */
+#screen-levels {
+    background: rgba(0,0,0,0.95);
+    gap: 0;
+    padding: 30px 40px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+#levels-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.level-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 10px;
+    border: 2px solid;
+    border-radius: 3px;
+    cursor: default;
+    transition: transform 0.12s, box-shadow 0.12s;
+    image-rendering: pixelated;
+    text-align: center;
+    min-height: 110px;
+}
+
+/* ── Completado ── */
+.level-card.lc-done {
+    border-color: #00ffcc;
+    background: linear-gradient(160deg, #002a22 0%, #001510 100%);
+    box-shadow: 0 0 16px #00ffcc22, inset 0 0 14px #00ffcc08;
+}
+.level-card.lc-done .lc-num   { color: #00ffcc; }
+.level-card.lc-done .lc-icon  { color: #00ffcc; font-size: 18px; text-shadow: 0 0 10px #00ffcc; }
+.level-card.lc-done .lc-name  { color: #88ffdd; }
+.level-card.lc-done .lc-diff  { color: #00ffcc66; }
+
+/* ── Disponible (no completado aún) ── */
+.level-card.lc-open {
+    border-color: #ffcc0088;
+    background: linear-gradient(160deg, #1a1200 0%, #0a0800 100%);
+    box-shadow: 0 0 12px #ffcc0011;
+    animation: openPulse 1.8s ease-in-out infinite alternate;
+}
+@keyframes openPulse {
+    from { box-shadow: 0 0 10px #ffcc0011; }
+    to   { box-shadow: 0 0 22px #ffcc0033; }
+}
+.level-card.lc-open .lc-num   { color: #ffcc00; }
+.level-card.lc-open .lc-icon  { color: #ffcc00; font-size: 16px; text-shadow: 0 0 8px #ffcc00; }
+.level-card.lc-open .lc-name  { color: #ffe77a; }
+.level-card.lc-open .lc-diff  { color: #ffcc0066; }
+
+/* ── Bloqueado ── */
+.level-card.lc-locked {
+    border-color: #ffffff18;
+    background: linear-gradient(160deg, #0a0a0a 0%, #050505 100%);
+    opacity: 0.55;
+}
+.level-card.lc-locked .lc-num  { color: #444; }
+.level-card.lc-locked .lc-icon { color: #444; font-size: 16px; }
+.level-card.lc-locked .lc-name { color: #333; }
+.level-card.lc-locked .lc-diff { color: #2a2a2a; }
+
+/* ── Elementos del card ── */
+.lc-num {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    line-height: 1;
+}
+.lc-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+.lc-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 6.5px;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    max-width: 150px;
+}
+.lc-diff {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 6px;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* ── Hover en cards disponibles y completadas ── */
+.level-card.lc-done:hover,
+.level-card.lc-open:hover {
+    transform: translateY(-3px) scale(1.03);
+}
+
+/* ── Responsive del grid en pantallas muy pequeñas (dentro del contenedor escalado) ── */
+@media (max-width: 700px) {
+    #levels-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .level-card { min-height: 90px; padding: 10px 8px; }
+    .lc-num     { font-size: 14px; }
+    .lc-name    { font-size: 6px; }
 }
